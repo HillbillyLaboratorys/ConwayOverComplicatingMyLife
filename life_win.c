@@ -3,11 +3,17 @@
 #include <time.h>
 #include <stdlib.h>
 
-#define W 40
-#define H 40
-#define SEEDNUM 400
+#define W 60
+#define H 60
 #define SIZE (W * H)
+#define SEEDNUM 1500
 #define oSize (((W * 2) + 1) * H)
+
+#define WW (W * 2)
+#define WH H
+
+HANDLE wHnd;    // Handle to write to the console.
+HANDLE rHnd;    // Handle to read from the console.
 
 void clearBoard(const int size, int* board) {
 
@@ -120,8 +126,30 @@ void plotBoard(const int size, int* board, const int wi, const int hi) {
 
 
 int main() {
+   
+        
+    // Set up the handles for reading/writing:
+    wHnd = GetStdHandle(STD_OUTPUT_HANDLE);
+    rHnd = GetStdHandle(STD_INPUT_HANDLE);
 
-      
+    // Change the window title:
+    SetConsoleTitle(TEXT("Let There Be Life"));
+
+    // Set up the required window size:
+    SMALL_RECT windowSize = { 0, 0, WW - 1, WH - 1};
+
+    // Change the console window size:
+    SetConsoleWindowInfo(wHnd, TRUE, &windowSize);
+
+    // Create a COORD to hold the buffer size:
+    COORD bufferSize = { WW, WH };
+
+    // Change the internal buffer size:
+    SetConsoleScreenBufferSize(wHnd, bufferSize);
+
+    // Set up the character buffer:
+    CHAR_INFO consoleBuffer[WW * WH];
+
     int around = 0;
     int current;
 
@@ -161,13 +189,69 @@ int main() {
             }
         }
 
+          /*
+         // We'll fill the console buffer with random data:
+         for (int y = 0; y < 50; ++y) {
+             for (int x = 0; x < 80; ++x) {
+
+                 // An ANSI character is in the range 0-255,
+                 // so use % to keep it in this range.
+                 consoleBuffer[x + 80 * y].Char.AsciiChar = rand() % 256;
+
+                 // The colour is also in the range 0-255,
+                 // as it is a pair of 4-bit colours.
+                 consoleBuffer[x + 80 * y].Attributes = rand() % 256;
+             }
+        }
+        */
+
+        CHAR_INFO hash;
+        hash.Char.AsciiChar = '#';
+        hash.Attributes = FOREGROUND_RED | FOREGROUND_INTENSITY;
+
+        CHAR_INFO space;
+        space.Char.AsciiChar = ' ';
+        space.Attributes = 0;
+
+        int j = 0;
+        for (int i = 0; i < SIZE; ++i, ++j) {
+
+            //if (i % W == 0 && i != 0) {
+            //    //printf("\n");
+            //    consoleBuffer[i].Char.AsciiChar = '\n';
+            //    
+            //}
+            if (out_board[i] == 1) {
+                //printf(" #");
+                consoleBuffer[j] = hash;
+                consoleBuffer[j + 1] = space;
+                j++;
+            }
+            if (out_board[i] == 0) {
+                //printf("  ");
+                consoleBuffer[j] = space;
+                consoleBuffer[j + 1] = space;
+                j++;
+            }
+
+        }
+
+        // Set up the positions:
+        COORD charBufSize = { WW,WH };
+        COORD characterPos = { 0,0 };
+        SMALL_RECT writeArea = { 0,0,WW-1,WH-1 };
+
+        // Write the characters:
+        WriteConsoleOutputA(wHnd, consoleBuffer, charBufSize, characterPos, &writeArea);
+
+        /*
         system("cls");
         plotBoard(SIZE, out_bp, W, H);
-
+        */
         switchBoards(SIZE, out_bp, comp_bp);
-
-        Sleep(50);
-
+        
+        Sleep(100);
+        
     }
     return 0;
 }
