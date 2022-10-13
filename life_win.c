@@ -86,44 +86,6 @@ void switchBoards(const int size, int* out_board, int* board) {
     }
 }
 
-void plotBoard(const int size, int* board, const int wi, const int hi) {
-
-    //char out[oSize];
-
-    //for (int i = 0; i < size; ++i) {
-
-    //    if (i % wi == 0) {
-    //        out[i] = '\n';
-    //        ++i;
-    //    }
-    //    if (board[i] == 1) {
-
-    //        out[i] = ' ';
-    //        out[i + 1] = '#';
-    //    }
-    //    if (board[i] == 0) {
-
-    //        out[i] = ' ';
-    //        out[i + 1] = ' ';
-    //    }
-    //}
-    //printf("%s", out);
-
-    for (int i = 0; i < size; ++i) {
-
-        if (i % wi == 0 && i != 0) {
-            printf("\n");
-        }
-        if (board[i] == 1) {
-            printf(" #");
-        }
-        if (board[i] == 0) {
-            printf("  ");
-        }
-
-    }
-}
-
 
 int main() {
    
@@ -142,13 +104,13 @@ int main() {
     SetConsoleWindowInfo(wHnd, TRUE, &windowSize);
 
     // Create a COORD to hold the buffer size:
-    COORD bufferSize = { WW, WH };
+    COORD bufferSize = { WW, WH + 1};
 
     // Change the internal buffer size:
     SetConsoleScreenBufferSize(wHnd, bufferSize);
 
     // Set up the character buffer:
-    CHAR_INFO consoleBuffer[WW * WH];
+    CHAR_INFO consoleBuffer[WW * WH + WW];
 
     int around = 0;
     int current;
@@ -162,7 +124,17 @@ int main() {
     //clearBoard(SIZE, comp_bp);
     //plotBoard(SIZE, comp_bp, W, H);
 
+    int live;
+    
+    int same1 = 0;
+    int same2 = 0;
+    int same3 = 0;
+    int same4 = 0;
+    int count = 0;
+
     while (1) {
+
+        live = 0;
 
         for (int i = 0; i < SIZE; ++i) {
 
@@ -178,36 +150,35 @@ int main() {
             else if (current == 0 && around == 3) {
 
                 out_board[i] = 1;
+                live++;
             }
 
             else if (current == 1 && around > 1 && around < 4) {
 
                 out_board[i] = 1;
+                live++;
             }
             else {
                 out_board[i] = 0;
             }
         }
 
-          /*
-         // We'll fill the console buffer with random data:
-         for (int y = 0; y < 50; ++y) {
-             for (int x = 0; x < 80; ++x) {
-
-                 // An ANSI character is in the range 0-255,
-                 // so use % to keep it in this range.
-                 consoleBuffer[x + 80 * y].Char.AsciiChar = rand() % 256;
-
-                 // The colour is also in the range 0-255,
-                 // as it is a pair of 4-bit colours.
-                 consoleBuffer[x + 80 * y].Attributes = rand() % 256;
-             }
+        if (live == same1 || live == same2 || live == same3|| live == same4) {
+            count++;
         }
-        */
-
+        
+        if (count > 100) {
+            seedBoard(SIZE, out_board);
+            count = 0;
+        }
+        same4 = same3;
+        same3 = same2;
+        same2 = same1;
+        same1 = live;
+      
         CHAR_INFO hash;
         hash.Char.AsciiChar = '#';
-        hash.Attributes = FOREGROUND_RED | FOREGROUND_INTENSITY;
+        hash.Attributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;;
 
         CHAR_INFO space;
         space.Char.AsciiChar = ' ';
@@ -235,15 +206,16 @@ int main() {
             }
 
         }
-
+        
         // Set up the positions:
-        COORD charBufSize = { WW,WH };
+        COORD charBufSize = { WW,WH + 1};
         COORD characterPos = { 0,0 };
-        SMALL_RECT writeArea = { 0,0,WW-1,WH-1 };
+        SMALL_RECT writeArea = { 0,0,WW-1,WH };
 
         // Write the characters:
         WriteConsoleOutputA(wHnd, consoleBuffer, charBufSize, characterPos, &writeArea);
 
+        //printf("%d", count);
         /*
         system("cls");
         plotBoard(SIZE, out_bp, W, H);
