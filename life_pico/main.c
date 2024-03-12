@@ -21,7 +21,12 @@ int main () {
 
     uint32_t base;
 
+    seedBoard(SIZE, b.comp_board);
+
+    b.out_board[SIZE];
+
     while (1) {
+        printf("test\n");
         uint32_t ind = 0;
         runBoard(&b);
         for (uint32_t i = 0; i < H/8; i++) {
@@ -33,7 +38,7 @@ int main () {
             }
         }
         sendData(buff, sizeof(buff));
-        sleep_ms(10);
+        sleep_ms(50);
     }
         
 

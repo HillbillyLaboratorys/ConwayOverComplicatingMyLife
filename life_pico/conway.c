@@ -10,7 +10,7 @@ static void clearBoard(const int size, int* board) {
 
 }
 
-static void seedBoard(const int size, int* out_board) {
+void seedBoard(const int size, int* out_board) {
 
     clearBoard(size, out_board);
 
@@ -111,5 +111,7 @@ void runBoard(struct conway* data) {
     data->same3 = data->same2;
     data->same2 = data->same1;
     data->same1 = data->live;
+
+    switchBoards(SIZE, data->out_board, data->comp_board);
       
 }

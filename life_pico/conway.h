@@ -29,7 +29,7 @@ struct conway
 
 static void clearBoard(const int size, int* board);
 
-static void seedBoard(const int size, int* out_board);
+void seedBoard(const int size, int* out_board);
 
 static int inBounds(int px, int py);
 
